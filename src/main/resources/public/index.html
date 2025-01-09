@@ -1,35 +1,47 @@
 <html>
-<head>
-    <!-- htmx dependencies -->
-    <script src="https://unpkg.com/htmx.org@2.0.4"
-            integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
-            crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
+    <head>
+        <!-- htmx dependencies -->
+        <script src="https://unpkg.com/htmx.org@2.0.4"
+                integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+                crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
 
-    <!-- tailwindcss dependencies -->
-    <script src="https://cdn.tailwindcss.com"></script>
+        <!-- tailwindcss dependencies -->
+        <script src="https://cdn.tailwindcss.com"></script>
 
-</head>
-<body>
-<div hx-ext="ws" ws-connect="ws://localhost:7070/chat-socket" ws-disconnect>
-    <h1 class="text-3xl font-bold underline text-center">Java chat room</h1>
-
-    <div class="flex gap-2">
-        <form id="username" ws-send>
-            <input
-                    type="text"
-                    placeholder="Choose your username"
-                    class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    name="content"
-            >
-            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-                Connect
-            </button>
-        </form>
-        <div id="connect_status">
-            <!-- content goes here -->
+    </head>
+    <body>
+    <div hx-ext="ws" ws-connect="ws://localhost:7070/chat-socket" ws-disconnect>
+        <div class="flex flex-col gap-4 justify-center items-center">
+            <h1 class="text-3xl font-bold underline text-center m-4">Java chat room</h1>
+            <div class="flex">
+                <form id="username" ws-send>
+                    <input
+                            type="text"
+                            placeholder="Choose your username"
+                            class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            name="content"
+                    >
+                    <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        Connect
+                    </button>
+                </form>
+            </div>
+            <div class="h-96 overflow-y-auto border rounded-lg bg-gray-50 p-4 m-4 space-y-4 w-[50%]" id="chat-window">
+            </div>
+            <div>
+                <form id="message" ws-send>
+                    <input
+                            type="text"
+                            placeholder=""
+                            class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            name="content"
+                    >
+                    <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        Send
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
-</div>
-</body>
+    </body>
 </html>

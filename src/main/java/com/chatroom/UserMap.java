@@ -1,14 +1,18 @@
 package com.chatroom;
 
-import java.util.Collection;
+import io.javalin.websocket.WsContext;
+
 import java.util.concurrent.ConcurrentHashMap;
 
-public class UserMap extends ConcurrentHashMap<String, String> {
-    public void addUser(String username, String sessionId) {
+;
+
+public class UserMap extends ConcurrentHashMap<String, UserSession> {
+
+    public void addUser(String sessionId, String username, WsContext context) {
         if (this.contains(sessionId)) {
             return;
         }
-        this.put(sessionId, username);
+        this.put(sessionId, new UserSession(username, context));
     }
 
     public void removeUser(String sessionId) {
@@ -16,9 +20,5 @@ public class UserMap extends ConcurrentHashMap<String, String> {
             return;
         }
         this.remove(sessionId);
-    }
-
-    public Collection<String> getUsers() {
-        return this.values();
     }
 }

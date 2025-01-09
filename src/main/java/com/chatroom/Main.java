@@ -1,14 +1,16 @@
 package com.chatroom;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.rendering.FileRenderer;
+import io.javalin.websocket.WsContext;
+import io.javalin.websocket.WsMessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
     public static void main(String[] args) {
@@ -38,12 +40,16 @@ public class Main {
         app.ws("/chat-socket", ws -> {
             ws.onMessage(ctx -> {
                 Message currentMessage = messageMapper.readValue(ctx.message(), Message.class);
-                switch(currentMessage.getType()) {
+                switch (currentMessage.getType()) {
                     case Message.Type.username -> {
-                        userMap.addUser(currentMessage.getContent(), ctx.sessionId());
-                        ctx.send(HtmlFactory.getUsersHTML(userMap.getUsers()));
+                        userMap.addUser(ctx.sessionId(), currentMessage.content, ctx);
                     }
-                    case Message.Type.message -> System.out.println("message: " + currentMessage.content);
+                    case Message.Type.message -> {
+                        for(String session: userMap.keySet()) {
+                            UserSession userSession = userMap.get(session);
+                            userSession.context().send(HtmlFactory.getMessageHTML(currentMessage.content, userSession.username(), session.equals(ctx.sessionId())));
+                        }
+                    }
                 }
             });
             ws.onClose(ctx -> {
