@@ -5,8 +5,6 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.rendering.FileRenderer;
-import io.javalin.websocket.WsContext;
-import io.javalin.websocket.WsMessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -20,21 +18,9 @@ public class Main {
         HTMLFactory HtmlFactory = new HTMLFactory();
 
         var app = Javalin.create(config -> {
-            config.staticFiles.add("src/main/resources/public", Location.EXTERNAL);
-            config.fileRenderer(new FileRenderer() {
-                @NotNull
-                @Override
-                public String render(@NotNull String s, @NotNull Map<String, ?> map, @NotNull Context context) {
-                    try {
-                        return new String(getClass().getResourceAsStream(s).readAllBytes());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
         });
         app.get("/", ctx -> {
-            ctx.render("/public/index.html");
+            ctx.html(HtmlFactory.getMainHTML());
         });
 
         app.ws("/chat-socket", ws -> {
