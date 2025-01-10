@@ -18,38 +18,22 @@ public class HTMLFactory {
                         div(
                                 div(
                                         h1("Java chat room").withClass("text-3xl font-bold underline text-center m-4"),
-
-                                        // sign in button
                                         div(
-                                                form(
-                                                        input()
-                                                                .withClass("flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")
-                                                                .withName("content")
-                                                                .withPlaceholder("Choose your username")
-                                                                .withType("text"),
-                                                        button("Connect")
-                                                                .withType("submit")
-                                                                .withClass("bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors")
-                                                ).withId("username").attr("ws-send")
-                                        ).withClass("flex"),
-
-                                        // Chat log
-                                        div()
-                                                .withClass("h-96 overflow-y-auto border rounded-lg bg-gray-50 p-4 m-4 space-y-4 w-[50%]")
-                                                .withId("chat-window"),
-
-                                        // send message button
-                                        div(
-                                                form(
-                                                        input()
-                                                                .withClass("flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")
-                                                                .withName("content")
-                                                                .withType("text"),
-                                                        button("Send")
-                                                                .withType("submit")
-                                                                .withClass("bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors")
-                                                ).withId("message").attr("ws-send")
-                                        )
+                                                // sign in button on initial load
+                                                div(
+                                                        form(
+                                                                input()
+                                                                        .withClass("flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")
+                                                                        .withName("content")
+                                                                        .withPlaceholder("Choose your username")
+                                                                        .withType("text")
+                                                                        .attr("autocomplete", "off"),
+                                                                button("Connect")
+                                                                        .withType("submit")
+                                                                        .withClass("bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors")
+                                                        ).withId("username").attr("ws-send").withClass("flex gap-2")
+                                                )
+                                        ).withId("main-section")
                                 ).withClass("flex flex-col gap-4 justify-center items-center")
                         )
                                 .attr("hx-ext", "ws")
@@ -58,7 +42,36 @@ public class HTMLFactory {
                 )
         ).render();
     }
-    
+
+    public String getChatViewHTML(String username) {
+        return div(
+            // logged in message
+            h2(String.format("Logged in as: %s", username)),
+
+            // chat window
+            div()
+                    .withClass("h-96 overflow-y-auto border rounded-lg bg-gray-50 p-4 my-4 space-y-4 w-[100%]")
+                    .withId("chat-window"),
+
+            // send message button
+            div(
+                    form(
+                            input()
+                                    .withClass("flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")
+                                    .withName("content")
+                                    .withType("text")
+                                    .attr("autocomplete", "off"),
+                            button("Send")
+                                    .withType("submit")
+                                    .withClass("bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors")
+                    )
+                            .withId("message")
+                            .attr("ws-send")
+                            .withClass("flex gap-4")
+            )
+        ).attr("hx-swap-oob", "innerHTML:#main-section").render();
+    }
+
     public String getMessageHTML(String message, String username, boolean owned) {
         if (owned) {
             return div(

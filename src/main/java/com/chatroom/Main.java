@@ -27,9 +27,14 @@ public class Main {
             ws.onMessage(ctx -> {
                 Message currentMessage = messageMapper.readValue(ctx.message(), Message.class);
                 switch (currentMessage.getType()) {
+
+                    // send back chat box HTML on 'connection'
                     case Message.Type.username -> {
                         userMap.addUser(ctx.sessionId(), currentMessage.content, ctx);
+                        ctx.send(HtmlFactory.getChatViewHTML(currentMessage.content));
                     }
+
+                    // broadcast message to all, with different HTML based on recipient
                     case Message.Type.message -> {
                         for(String session: userMap.keySet()) {
                             UserSession userSession = userMap.get(session);
