@@ -2,20 +2,16 @@ package com.chatroom;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
-import io.javalin.http.staticfiles.Location;
-import io.javalin.rendering.FileRenderer;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.Map;
+import java.sql.SQLException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         // global maps used
         UserMap userMap = new UserMap();
         ObjectMapper messageMapper = new ObjectMapper();
         HTMLFactory HtmlFactory = new HTMLFactory();
+        DBConn dbConn = new DBConn();
 
         var app = Javalin.create(config -> {
         });
@@ -31,15 +27,19 @@ public class Main {
                     // send back chat box HTML on 'connection'
                     case Message.Type.username -> {
                         userMap.addUser(ctx.sessionId(), currentMessage.content, ctx);
-                        ctx.send(HtmlFactory.getChatViewHTML(currentMessage.content));
+                        ctx.send(HtmlFactory.getChatViewHTML(currentMessage.content, dbConn.getMessages(10)));
                     }
 
-                    // broadcast message to all, with different HTML based on recipient
                     case Message.Type.message -> {
                         String sourceUsername = userMap.get(ctx.sessionId()).username();
-                        for(String session: userMap.keySet()) {
+
+                        // First add to database, for persistence
+                        dbConn.addMessage(sourceUsername, currentMessage.getContent());
+
+                        // broadcast to all users, with different HTML depending on recipient
+                        for (String session : userMap.keySet()) {
                             UserSession userSession = userMap.get(session);
-                            userSession.context().send(HtmlFactory.getMessageHTML(currentMessage.content, sourceUsername, session.equals(ctx.sessionId())));
+                            userSession.context().send(HtmlFactory.getMessageHTML(currentMessage.content, sourceUsername, session.equals(ctx.sessionId())).render());
                         }
                     }
                 }
@@ -47,12 +47,9 @@ public class Main {
             ws.onClose(ctx -> {
                 userMap.removeUser(ctx.sessionId());
             });
-            ws.onError(err -> {
-                if (userMap.contains(err.sessionId())) {
-                    userMap.removeUser(err.sessionId());
-                }
-            });
         });
         app.start(7070);
+
+        //dbConn.close();
     }
 }
