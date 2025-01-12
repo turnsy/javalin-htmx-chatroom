@@ -36,15 +36,21 @@ public class Main {
 
                     // broadcast message to all, with different HTML based on recipient
                     case Message.Type.message -> {
+                        String sourceUsername = userMap.get(ctx.sessionId()).username();
                         for(String session: userMap.keySet()) {
                             UserSession userSession = userMap.get(session);
-                            userSession.context().send(HtmlFactory.getMessageHTML(currentMessage.content, userSession.username(), session.equals(ctx.sessionId())));
+                            userSession.context().send(HtmlFactory.getMessageHTML(currentMessage.content, sourceUsername, session.equals(ctx.sessionId())));
                         }
                     }
                 }
             });
             ws.onClose(ctx -> {
                 userMap.removeUser(ctx.sessionId());
+            });
+            ws.onError(err -> {
+                if (userMap.contains(err.sessionId())) {
+                    userMap.removeUser(err.sessionId());
+                }
             });
         });
         app.start(7070);

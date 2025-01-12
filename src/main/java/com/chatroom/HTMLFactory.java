@@ -33,7 +33,7 @@ public class HTMLFactory {
                                                                         .withClass("bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors")
                                                         ).withId("username").attr("ws-send").withClass("flex gap-2")
                                                 )
-                                        ).withId("main-section")
+                                        ).withId("main-section").withClass("w-[70%]")
                                 ).withClass("flex flex-col gap-4 justify-center items-center")
                         )
                                 .attr("hx-ext", "ws")
